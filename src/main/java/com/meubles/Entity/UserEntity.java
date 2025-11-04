@@ -1,11 +1,11 @@
-package com.meubles.model;
+package com.meubles.Entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Table(name = "users")
 @Data
-public class User {
+public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,7 +24,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private com.meubles.model.Role role;
 
     @Column
     private String address;
