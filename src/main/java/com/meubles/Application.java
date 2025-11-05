@@ -1,4 +1,4 @@
-package com.meubles.meubles.API;
+package com.meubles;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
