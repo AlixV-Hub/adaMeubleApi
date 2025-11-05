@@ -1,4 +1,4 @@
-package com.meubles.model;
+package com.meubles.Model;
 
 public enum Role {
     USER,

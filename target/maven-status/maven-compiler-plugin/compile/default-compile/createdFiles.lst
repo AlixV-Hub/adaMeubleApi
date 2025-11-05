@@ -1,6 +1,0 @@
-com\meubles\meubles\API\SecurityConfig.class
-com\meubles\repository\UserRepository.class
-com\meubles\Application.class
-com\meubles\config\CorsConfig.class
-com\meubles\Entity\UserEntity.class
-com\meubles\model\Role.class

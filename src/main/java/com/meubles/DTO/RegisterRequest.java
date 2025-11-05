@@ -1,55 +1,18 @@
-package com.meubles.Entity;
-import com.meubles.Model.Role;
-import jakarta.persistence.*;
-import lombok.Data;
+package com.meubles.DTO;
 
-@Entity
-@Table(name = "users")
-@Data
-
-public class UserEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(nullable = false)
+public class RegisterRequest {
     private String firstname;
-
-    @Column(nullable = false)
     private String lastname;
-
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(nullable = false)
     private String password;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
-
-    @Column
     private String address;
 
-    public UserEntity() {
-    }
-
-    public UserEntity(Long id, String firstname, String lastname, String email, String password, Role role, String address) {
-        this.id = id;
+    public RegisterRequest(String firstname, String lastname, String email, String password, String address) {
         this.firstname = firstname;
         this.lastname = lastname;
         this.email = email;
         this.password = password;
-        this.role = role;
         this.address = address;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getFirstname() {
@@ -84,14 +47,6 @@ public class UserEntity {
         this.password = password;
     }
 
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
-
     public String getAddress() {
         return address;
     }
@@ -100,3 +55,5 @@ public class UserEntity {
         this.address = address;
     }
 }
+
+
