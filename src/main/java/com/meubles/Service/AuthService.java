@@ -5,6 +5,8 @@ import com.meubles.Entity.UserEntity;
 import com.meubles.Model.Role;
 import com.meubles.Repository.UserRepository;
 import com.meubles.Security.JwtUtil;
+import com.meubles.Exception.EmailAlreadyExistsException;
+import com.meubles.Exception.InvalidCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,10 +26,12 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request) {
+        // Vérifier si l'email existe déjà
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("Cet email est déjà utilisé");
+            throw new EmailAlreadyExistsException("Cet email est déjà utilisé");
         }
 
+        // Créer un nouvel utilisateur
         UserEntity user = new UserEntity();
         user.setFirstname(request.getFirstname());
         user.setLastname(request.getLastname());
@@ -36,21 +40,30 @@ public class AuthService {
         user.setAddress(request.getAddress());
         user.setRole(Role.USER);
 
+        // Sauvegarder en BDD
         userRepository.save(user);
 
+        // Générer un JWT
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().toString());
+
+        // Retourner la réponse
         return new AuthResponse(token, user.getEmail(), user.getRole().toString());
     }
 
     public AuthResponse login(LoginRequest request) {
+        // Chercher l'utilisateur par email
         UserEntity user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("Email ou mot de passe incorrect"));
+                .orElseThrow(() -> new InvalidCredentialsException("Email ou mot de passe incorrect"));
 
+        // Vérifier le mot de passe
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
-            throw new IllegalArgumentException("Email ou mot de passe incorrect");
+            throw new InvalidCredentialsException("Email ou mot de passe incorrect");
         }
 
+        // Générer un JWT
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().toString());
+
+        // Retourner la réponse
         return new AuthResponse(token, user.getEmail(), user.getRole().toString());
     }
 }
