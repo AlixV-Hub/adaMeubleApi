@@ -1,4 +1,4 @@
-package com.meubles.config;
+package com.meubles.Config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,11 +13,13 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("<http://localhost:3000>"); // Port de React
+
+        // ✅ Utilisez addAllowedOriginPattern au lieu de addAllowedOrigin
+        config.addAllowedOriginPattern("http://localhost:3000");
+
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         source.registerCorsConfiguration("/api/**", config);
         return new CorsFilter(source);
     }
-
 }
