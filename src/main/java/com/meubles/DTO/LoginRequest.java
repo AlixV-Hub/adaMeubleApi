@@ -1,30 +1,41 @@
 package com.meubles.DTO;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 
-    public class LoginRequest {
-        private String email;
-        private String password;
+public class LoginRequest {
 
-        public LoginRequest(String email, String password) {
-            this.email = email;
-            this.password = password;
-        }
+    @NotBlank(message = "L'email est obligatoire")
+    @Email(message = "L'email doit être valide")
+    private String email;
 
-        public String getEmail() {
-            return email;
-        }
+    @NotBlank(message = "Le mot de passe est obligatoire")
+    private String password;
 
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
-
+    // Constructeur vide (obligatoire pour Jackson)
+    public LoginRequest() {
     }
 
+    // Constructeur avec paramètres
+    public LoginRequest(String email, String password) {
+        this.email = email;
+        this.password = password;
+    }
+
+    // Getters et Setters
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+}
