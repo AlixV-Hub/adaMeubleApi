@@ -2,7 +2,6 @@ package com.meubles.Entity;
 
 
 import jakarta.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +17,7 @@ public class CategoryEntity {
     private String name;
 
     @OneToMany(mappedBy = "category", fetch = FetchType.LAZY)
-    private List<Product> products;
+    private List<ProductEntity> products;
 
     public CategoryEntity() {
     }
@@ -46,11 +45,11 @@ public class CategoryEntity {
         this.name = name;
     }
 
-    public List<Product> getProducts() {
+    public List<ProductEntity> getProducts() {
         return products;
     }
 
-    public void setProducts(List<Product> products) {
+    public void setProducts(List<ProductEntity> products) {
         this.products = products;
     }
 }
