@@ -51,7 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/products", "/api/products/**").permitAll()
                         // Sécurise les statics
                         .requestMatchers("/", "/error", "/favicon.ico").permitAll()
-                        .requestMatchers("/api/products/*/buy").permitAll()
+                        .requestMatchers("/api/products/*/buy").authenticated()
 
                         // Sécuriser tout le reste !!!
                         .anyRequest().authenticated()
@@ -60,7 +60,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Dire à Spring d'utiliser notre fournisseur d'authentification
+
                 .authenticationProvider(authenticationProvider())
 
                 // AJOUTE LE FILTRE "GARDIEN" QUI LIT LES TOKENS
