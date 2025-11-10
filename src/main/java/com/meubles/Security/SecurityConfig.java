@@ -46,8 +46,14 @@ public class SecurityConfig {
 
                         // Sécuriser /me (il faut un token)
                         .requestMatchers("/api/auth/me").authenticated()
+                        // Sécurise /products
 
-                        // Sécuriser tout le reste
+                        .requestMatchers("/api/products", "/api/products/**").permitAll()
+                        // Sécurise les statics
+                        .requestMatchers("/", "/error", "/favicon.ico").permitAll()
+                        .requestMatchers("/api/products/*/buy").permitAll()
+
+                        // Sécuriser tout le reste !!!
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

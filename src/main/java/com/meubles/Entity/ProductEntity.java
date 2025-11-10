@@ -47,6 +47,13 @@ public class ProductEntity {
             inverseJoinColumns = @JoinColumn(name = "color_id")
     )
     private Set<ColorEntity> colors;
+    @ManyToOne
+    @JoinColumn(name = "creator_id")
+    private UserEntity creator; // le vendeur (créateur du produit)
+
+    @ManyToOne
+    @JoinColumn(name = "buyer_id")
+    private UserEntity buyer; // l’acheteur
 
     @ManyToMany
     @JoinTable(
@@ -57,7 +64,7 @@ public class ProductEntity {
     private Set<MaterialEntity> materials;
 
     public ProductEntity() {
-        this.colors = new HashSet<>(); // évite les doublons
+        this.colors = new HashSet<>();
         this.materials = new HashSet<>();
     }
 
@@ -163,4 +170,13 @@ public class ProductEntity {
     public void setMaterials(Set<MaterialEntity> materials) {
         this.materials = materials;
     }
+
+    public void setBuyer(UserEntity buyer) {
+        this.buyer = buyer;
+    }
+    public UserEntity getBuyer() {
+        return buyer;
+    }
+
+
 }

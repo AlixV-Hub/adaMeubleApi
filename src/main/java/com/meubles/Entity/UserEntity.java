@@ -3,11 +3,14 @@ import com.meubles.Model.Role;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "users")
 @Data
 
 public class UserEntity {
+    private String address;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,15 +29,18 @@ public class UserEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private Role role; // Pour la sécurité (admin / user)
+    @OneToMany(mappedBy = "creator")
+    private Set<ProductEntity> productsCreated;
 
-    @Column
-    private String address;
+    @OneToMany(mappedBy = "buyer")
+    private Set<ProductEntity> productsBought;
+
+
+
+
 
     public UserEntity() {
-    }
-
-    public UserEntity(Long id, String firstname, String lastname, String email, String password, Role role, String address) {
         this.id = id;
         this.firstname = firstname;
         this.lastname = lastname;
@@ -99,4 +105,5 @@ public class UserEntity {
     public void setAddress(String address) {
         this.address = address;
     }
+
 }
