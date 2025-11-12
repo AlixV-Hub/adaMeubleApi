@@ -18,6 +18,12 @@ public class CreateProductRequest {
     @Positive(message = "Le prix doit être positif")
     private BigDecimal price;
 
+    @NotNull(message = "La catégorie est obligatoire")
+    private Long categoryId;
+
+    private List<Long> couleurIds;
+    private List<Long> matiereIds;
+
     private String sku;
     private String dimensions;
     private List<String> imageUrls;
@@ -33,6 +39,15 @@ public class CreateProductRequest {
 
     public BigDecimal getPrice() { return price; }
     public void setPrice(BigDecimal price) { this.price = price; }
+
+    public Long getCategoryId() { return categoryId; }
+    public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
+
+    public List<Long> getCouleurIds() { return couleurIds; }
+    public void setCouleurIds(List<Long> couleurIds) { this.couleurIds = couleurIds; }
+
+    public List<Long> getMatiereIds() { return matiereIds; }
+    public void setMatiereIds(List<Long> matiereIds) { this.matiereIds = matiereIds; }
 
     public String getSku() { return sku; }
     public void setSku(String sku) { this.sku = sku; }

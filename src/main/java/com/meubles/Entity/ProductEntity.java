@@ -2,6 +2,8 @@ package com.meubles.Entity;
 
 import com.meubles.Model.Status;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -11,36 +13,58 @@ import java.util.Set;
 
 
 public class ProductEntity {
+    @Setter
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
+    @Getter
     @Column(nullable = false)
     private String name;
 
+    @Setter
+    @Getter
     @Column(nullable = false)
     private String description;
 
+    @Setter
+    @Getter
     @Column(nullable = false)
     private Double price;
 
+    @Getter
+    @Setter
     @Column(nullable = false)
     private String dimensions;
 
+    @Setter
+    @Getter
     @Column(nullable = false)
     private String imageUrl;
 
+    @Setter
+    @Getter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
+    @Setter
+    @Getter
     @Column(unique = true, nullable = false)
     private String sku;
+    @Setter
+    @Getter
     @Column
     private Long createdByUserId;
 
+    @Setter
+    @Getter
     @ManyToOne
     private CategoryEntity category;
 
+    @Setter
+    @Getter
     @ManyToMany
     @JoinTable(
             name = "product_color",
@@ -52,10 +76,14 @@ public class ProductEntity {
     @JoinColumn(name = "creator_id")
     private UserEntity creator; // le vendeur (créateur du produit)
 
+    @Getter
+    @Setter
     @ManyToOne
     @JoinColumn(name = "buyer_id")
     private UserEntity buyer; // l’acheteur
 
+    @Setter
+    @Getter
     @ManyToMany
     @JoinTable(
             name = "product_material",
@@ -84,107 +112,4 @@ public class ProductEntity {
     }
 
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
-    }
-
-    public String getDimensions() {
-        return dimensions;
-    }
-
-    public void setDimensions(String dimensions) {
-        this.dimensions = dimensions;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
-
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
-    }
-
-    public Long getCreatedByUserId() {
-        return createdByUserId;
-    }
-
-    public void setCreatedByUserId(Long createdByUserId) {
-        this.createdByUserId = createdByUserId;
-    }
-
-    public CategoryEntity getCategory() {
-        return category;
-    }
-
-    public void setCategory(CategoryEntity category) {
-        this.category = category;
-    }
-
-    public Set<ColorEntity> getColors() {
-        return colors;
-    }
-
-    public void setColors(Set<ColorEntity> colors) {
-        this.colors = colors;
-    }
-
-    public Set<MaterialEntity> getMaterials() {
-        return materials;
-    }
-
-    public void setMaterials(Set<MaterialEntity> materials) {
-        this.materials = materials;
-    }
-
-    public void setBuyer(UserEntity buyer) {
-        this.buyer = buyer;
-    }
-    public UserEntity getBuyer() {
-        return buyer;
-    }
-
-
-    public String getSku() {
-        return sku;
-    }
-
-    public void setSku(String sku) {
-        this.sku = sku;
-    }
 }

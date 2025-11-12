@@ -1,25 +1,35 @@
 package com.meubles.Service;
 
 import com.meubles.DTO.*;
+import com.meubles.Entity.ColorEntity;
+import com.meubles.Entity.MaterialEntity;
 import com.meubles.Entity.ProductEntity;
 import com.meubles.Entity.UserEntity;
 import com.meubles.Exception.ProductNotFoundException;
 import com.meubles.Model.Status;
-import com.meubles.Repository.ProductRepository;
-import com.meubles.Repository.UserRepository;
+import com.meubles.Repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
+    @Autowired
+    private CategoryRepository categoryRepository;
 
+    @Autowired
+    private ColorRepository colorRepository;
+
+    @Autowired
+    private MaterialRepository materialRepository;
     @Autowired
     private ProductRepository productRepository;
 
@@ -27,13 +37,21 @@ public class ProductService {
     private UserRepository userRepository;
 
 
-    public ProductDTO createProduct(CreateProductRequest request) {
+    public ProductDTO createProduct(CreateProductRequest request, String userRole, Long userId) {
         ProductEntity entity = new ProductEntity();
         entity.setName(request.getName());
         entity.setDescription(request.getDescription());
         entity.setPrice(request.getPrice().doubleValue());
         entity.setDimensions(request.getDimensions());
-        entity.setStatus(Status.ENABLED);
+
+
+        if (userRole.equalsIgnoreCase("ADMIN")) {
+            entity.setStatus(Status.ENABLED); // dispo
+            entity.setCreatedByUserId(null);
+        } else if (userRole.equalsIgnoreCase("USER")) {
+            entity.setStatus(Status.PENDING); // en attente
+            entity.setCreatedByUserId(userId);
+        }
 
         // SKU automatique
         if (request.getSku() == null || request.getSku().isEmpty()) {
@@ -45,6 +63,23 @@ public class ProductService {
         // Image principale
         if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
             entity.setImageUrl(request.getImageUrls().get(0));
+        }
+        // 🔹 Associer la catégorie
+        if (request.getCategoryId() != null) {
+            categoryRepository.findById(request.getCategoryId())
+                    .ifPresent(entity::setCategory);
+        }
+
+// 🔹 Associer les couleurs
+        if (request.getCouleurIds() != null && !request.getCouleurIds().isEmpty()) {
+            Set<ColorEntity> colors = new HashSet<>(colorRepository.findAllById(request.getCouleurIds()));
+            entity.setColors(colors);
+        }
+
+// 🔹 Associer les matières
+        if (request.getMatiereIds() != null && !request.getMatiereIds().isEmpty()) {
+            Set<MaterialEntity> materials = new HashSet<>(materialRepository.findAllById(request.getMatiereIds()));
+            entity.setMaterials(materials);
         }
 
         ProductEntity saved = productRepository.save(entity);
