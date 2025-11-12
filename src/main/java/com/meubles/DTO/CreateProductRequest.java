@@ -21,8 +21,8 @@ public class CreateProductRequest {
     @NotNull(message = "La catégorie est obligatoire")
     private Long categoryId;
 
-    private List<Long> couleurIds;
-    private List<Long> matiereIds;
+    private List<Long> coulorIds;
+    private List<Long> materialIds;
 
     private String sku;
     private String dimensions;
@@ -43,11 +43,11 @@ public class CreateProductRequest {
     public Long getCategoryId() { return categoryId; }
     public void setCategoryId(Long categoryId) { this.categoryId = categoryId; }
 
-    public List<Long> getCouleurIds() { return couleurIds; }
-    public void setCouleurIds(List<Long> couleurIds) { this.couleurIds = couleurIds; }
+    public List<Long> getCouleurIds() { return coulorIds; }
+    public void setCouleurIds(List<Long> coulorIds) { this.coulorIds = coulorIds; }
 
-    public List<Long> getMatiereIds() { return matiereIds; }
-    public void setMatiereIds(List<Long> matiereIds) { this.matiereIds = matiereIds; }
+    public List<Long> getMatiereIds() { return materialIds; }
+    public void setMatiereIds(List<Long> materialIds) { this.materialIds = materialIds; }
 
     public String getSku() { return sku; }
     public void setSku(String sku) { this.sku = sku; }
