@@ -63,9 +63,13 @@ public class ProductController {
     @PutMapping("{id}/buy")
     public ResponseEntity<ProductDTO> buyProduct(
             @PathVariable Long id,
-            @RequestParam Long userId
-    ) {
-        ProductDTO product = productService.buyProduct(id, userId);
+            Authentication authentication) {
+
+        String email = authentication.getName();
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+
+        ProductDTO product = productService.buyProduct(id, user.getId());
         return ResponseEntity.ok(product);
     }
 }
