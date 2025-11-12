@@ -2,8 +2,9 @@ package com.meubles.DTO;
 
 import com.meubles.Model.Status;
 import java.util.List;
+import java.util.UUID;
 
-    public class ProductDTO {
+public class ProductDTO {
         private Long id;
         private String name;
         private String description;
@@ -15,6 +16,8 @@ import java.util.List;
         private CategoryDTO category;
         private List<ColorDTO> colors;
         private List<MaterialDTO> materials;
+        private String sku;
+
 
         public ProductDTO() {
         }
@@ -31,12 +34,14 @@ import java.util.List;
             this.category = category;
             this.colors = colors;
             this.materials = materials;
+            this.sku = UUID.randomUUID().toString();
         }
 
         public Long getId() {
             return id;
         }
-
+        public String getSku() { return sku; }
+        public void setSku(String sku) { this.sku = sku; }
         public void setId(Long id) {
             this.id = id;
         }

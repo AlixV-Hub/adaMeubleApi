@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Autoriser les routes publiques
                         .requestMatchers("/api/auth/login").permitAll()
+
                         .requestMatchers("/api/auth/register").permitAll()
 
                         // Sécuriser /me (il faut un token)
@@ -52,6 +53,7 @@ public class SecurityConfig {
                         // Sécurise les statics
                         .requestMatchers("/", "/error", "/favicon.ico").permitAll()
                         .requestMatchers("/api/products/*/buy").authenticated()
+
 
                         // Sécuriser tout le reste !!!
                         .anyRequest().authenticated()

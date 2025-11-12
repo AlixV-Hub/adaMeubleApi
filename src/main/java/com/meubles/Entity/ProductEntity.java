@@ -33,7 +33,8 @@ public class ProductEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Status status;
-
+    @Column(unique = true, nullable = false)
+    private String sku;
     @Column
     private Long createdByUserId;
 
@@ -179,4 +180,11 @@ public class ProductEntity {
     }
 
 
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
+    }
 }
