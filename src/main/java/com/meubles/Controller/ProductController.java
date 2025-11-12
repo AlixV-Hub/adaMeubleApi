@@ -23,7 +23,19 @@ public class ProductController {
 
     @Autowired
     private UserRepository userRepository;
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteProduct(
+            @PathVariable Long id,
+            Authentication authentication) {
 
+        String email = authentication.getName();
+
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+
+        productService.deleteProduct(id, user);
+        return ResponseEntity.noContent().build(); // 204 No Content
+    }
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(
             @RequestBody CreateProductRequest request,
@@ -31,16 +43,12 @@ public class ProductController {
 
         String email = authentication.getName();
         UserEntity user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
-
-         // verif admin si oui il y a une création spéciale pour les admin en bdd
-        if (!user.getRole().name().equals("ADMIN")) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accès réservé aux administrateurs");
-        }
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
 
         ProductDTO createdProduct = productService.createProduct(request, user.getRole().name(), user.getId());
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdProduct);
+        return ResponseEntity.ok(createdProduct);
     }
+
 
     @GetMapping
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
