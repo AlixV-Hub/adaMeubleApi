@@ -42,19 +42,27 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Autoriser les routes publiques
                         .requestMatchers("/api/auth/login").permitAll()
+
                         .requestMatchers("/api/auth/register").permitAll()
 
                         // Sécuriser /me (il faut un token)
                         .requestMatchers("/api/auth/me").authenticated()
+                        // Sécurise /products
 
-                        // Sécuriser tout le reste
+                        .requestMatchers("/api/products", "/api/products/**").permitAll()
+                        // Sécurise les statics
+                        .requestMatchers("/", "/error", "/favicon.ico").permitAll()
+                        .requestMatchers("/api/products/*/buy").authenticated()
+
+
+                        // Sécuriser tout le reste !!!
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Dire à Spring d'utiliser notre fournisseur d'authentification
+
                 .authenticationProvider(authenticationProvider())
 
                 // AJOUTE LE FILTRE "GARDIEN" QUI LIT LES TOKENS
