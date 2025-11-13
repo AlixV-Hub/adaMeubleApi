@@ -30,6 +30,7 @@ public class ProductService {
 
     @Autowired
     private MaterialRepository materialRepository;
+
     @Autowired
     private ProductRepository productRepository;
 
@@ -43,10 +44,8 @@ public class ProductService {
         entity.setDescription(request.getDescription());
         entity.setPrice(request.getPrice().doubleValue());
         entity.setDimensions(request.getDimensions());
-        // enregistre la création si c'est un user
-        if ("USER".equals(userRole)) {
-            entity.setCreatedByUserId(userId);
-        }
+
+        // Définir le statut et le créateur selon le rôle
         if (userRole.equalsIgnoreCase("ADMIN")) {
             entity.setStatus(Status.ENABLED);
             entity.setCreatedByUserId(null);
@@ -54,29 +53,32 @@ public class ProductService {
             entity.setStatus(Status.ENABLED);
             entity.setCreatedByUserId(userId);
         }
-//SKU
+
+        // Gérer le SKU
         if (request.getSku() == null || request.getSku().isEmpty()) {
             entity.setSku("SKU-" + UUID.randomUUID().toString().substring(0, 8));
         } else {
             entity.setSku(request.getSku());
         }
 
+        // Image
         if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
             entity.setImageUrl(request.getImageUrls().get(0));
         }
-        // 🔹 Associer la catégorie
+
+        // Associer la catégorie
         if (request.getCategoryId() != null) {
             categoryRepository.findById(request.getCategoryId())
                     .ifPresent(entity::setCategory);
         }
 
-// 🔹 Associer les couleurs
+        // Associer les couleurs
         if (request.getCouleurIds() != null && !request.getCouleurIds().isEmpty()) {
             Set<ColorEntity> colors = new HashSet<>(colorRepository.findAllById(request.getCouleurIds()));
             entity.setColors(colors);
         }
 
-// 🔹 Associer les matières
+        // Associer les matières
         if (request.getMatiereIds() != null && !request.getMatiereIds().isEmpty()) {
             Set<MaterialEntity> materials = new HashSet<>(materialRepository.findAllById(request.getMatiereIds()));
             entity.setMaterials(materials);
@@ -86,9 +88,53 @@ public class ProductService {
         return convertToDTO(saved);
     }
 
+    @Transactional
+    public ProductDTO updateProduct(Long id, CreateProductRequest request) {
+        ProductEntity entity = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+
+        entity.setName(request.getName());
+        entity.setDescription(request.getDescription());
+        entity.setPrice(request.getPrice().doubleValue());
+        entity.setDimensions(request.getDimensions());
+
+        if (request.getSku() != null && !request.getSku().isEmpty()) {
+            entity.setSku(request.getSku());
+        }
+
+        if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
+            entity.setImageUrl(request.getImageUrls().get(0));
+        }
+        if (request.getCategoryId() != null) {
+            categoryRepository.findById(request.getCategoryId())
+                    .ifPresent(entity::setCategory);
+        }
+
+        if (request.getCouleurIds() != null) {
+            entity.getColors().clear();
+            Set<ColorEntity> colors = new HashSet<>(colorRepository.findAllById(request.getCouleurIds()));
+            entity.setColors(colors);
+        }
+        if (request.getMatiereIds() != null) {
+            entity.getMaterials().clear();
+            Set<MaterialEntity> materials = new HashSet<>(materialRepository.findAllById(request.getMatiereIds()));
+            entity.setMaterials(materials);
+        }
+
+        ProductEntity updated = productRepository.save(entity);
+        return convertToDTO(updated);
+    }
+
 
     public List<ProductDTO> getAllProducts() {
         return productRepository.findByStatus(Status.ENABLED)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<ProductDTO> findAllForAdmin() {
+        return productRepository.findAll()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -100,6 +146,7 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(id));
         return convertToDTO(entity);
     }
+
     @Transactional
     public void deleteProduct(Long productId, UserEntity currentUser) {
         ProductEntity product = productRepository.findById(productId)
@@ -113,7 +160,6 @@ public class ProductService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous ne pouvez pas supprimer ce produit");
         }
 
-        // Supprime les associations avant suppression
         product.getColors().clear();
         product.getMaterials().clear();
 
@@ -134,6 +180,34 @@ public class ProductService {
 
         product.setStatus(Status.DISABLED);
         product.setBuyer(buyer);
+
+        ProductEntity updated = productRepository.save(product);
+        return convertToDTO(updated);
+    }
+    @Transactional
+    public ProductDTO validateProduct(Long id) {
+        ProductEntity product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        if (product.getStatus() != Status.PENDING) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Seuls les produits en attente peuvent être validés");
+        }
+
+        product.setStatus(Status.ENABLED);
+
+        ProductEntity updated = productRepository.save(product);
+        return convertToDTO(updated);
+    }
+
+    @Transactional
+    public ProductDTO rejectProduct(Long id) {
+        ProductEntity product = productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+        if (product.getStatus() != Status.PENDING) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "Seuls les produits en attente peuvent être refusés");
+        }
+        product.setStatus(Status.DENIED);
 
         ProductEntity updated = productRepository.save(product);
         return convertToDTO(updated);
