@@ -1,10 +1,8 @@
 package com.meubles.Service;
-
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.meubles.DTO.*;
-import com.meubles.Entity.ColorEntity;
-import com.meubles.Entity.MaterialEntity;
-import com.meubles.Entity.ProductEntity;
-import com.meubles.Entity.UserEntity;
+import com.meubles.Entity.*;
 import com.meubles.Exception.ProductNotFoundException;
 import com.meubles.Model.Status;
 import com.meubles.Repository.*;
@@ -43,7 +41,7 @@ public class ProductService {
         entity.setDescription(request.getDescription());
         entity.setPrice(request.getPrice().doubleValue());
         entity.setDimensions(request.getDimensions());
-        // enregistre la création si c'est un user
+
         if ("USER".equals(userRole)) {
             entity.setCreatedByUserId(userId);
         }
@@ -167,4 +165,71 @@ public class ProductService {
         }
         return dto;
     }
-}
+    @Transactional
+    public ProductDTO updateProduct(Long id, UpdateProductRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+
+        UserEntity currentUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
+
+
+        String userRole = currentUser.getRole().name();  // ADMIN ou USER
+        Long currentUserId = currentUser.getId();
+
+        ProductEntity product = productRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produit introuvable"));
+
+
+        if (request.getName() != null) product.setName(request.getName());
+        if (request.getDescription() != null) product.setDescription(request.getDescription());
+        if (request.getPrice() != null) product.setPrice(request.getPrice().doubleValue());
+        if (request.getDimensions() != null) product.setDimensions(request.getDimensions());
+        if (request.getImageUrl() != null) product.setImageUrl(request.getImageUrl());
+        if (request.getSku() != null) product.setSku(request.getSku());
+
+        if (request.getStatus() != null) {
+            try {
+                product.setStatus(Status.valueOf(request.getStatus().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Statut invalide");
+            }
+        }
+
+
+        if (request.getCategoryId() != null) {
+            CategoryEntity category = categoryRepository.findById(request.getCategoryId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Catégorie introuvable"));
+            product.setCategory(category);
+        }
+
+
+        if (request.getCouleurIds() != null && !request.getCouleurIds().isEmpty()) {
+            Set<ColorEntity> colors = new HashSet<>(colorRepository.findAllById(request.getCouleurIds()));
+            product.setColors(colors);
+        }
+
+
+        if (request.getMatiereIds() != null && !request.getMatiereIds().isEmpty()) {
+            Set<MaterialEntity> materials = new HashSet<>(materialRepository.findAllById(request.getMatiereIds()));
+            product.setMaterials(materials);
+        }
+
+
+        ProductEntity updated = productRepository.save(product);
+        if (!userRole.equals("ADMIN")) {
+            if (!product.getCreator().getId().equals(currentUserId)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous ne pouvez modifier que vos propres produits.");
+            }
+        }
+
+        return convertToDTO(updated);
+
+    }
+    public List<ProductDTO> findAllForAdmin() {
+        List<ProductEntity> products = productRepository.findAll();
+
+        return products.stream()
+                .map(ProductDTO::new) // grâce à ton constructeur ProductDTO(ProductEntity entity)
+                .collect(Collectors.toList());}
+    }

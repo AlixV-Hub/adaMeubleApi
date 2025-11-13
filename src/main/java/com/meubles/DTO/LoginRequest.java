@@ -12,11 +12,10 @@ public class LoginRequest {
     @NotBlank(message = "Le mot de passe est obligatoire")
     private String password;
 
-    // Constructeur vide (obligatoire pour Jackson)
+
     public LoginRequest() {
     }
 
-    // Constructeur avec paramètres
     public LoginRequest(String email, String password) {
         this.email = email;
         this.password = password;

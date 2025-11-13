@@ -1,5 +1,7 @@
 package com.meubles.DTO;
 
+import com.meubles.Entity.MaterialEntity;
+
 public class MaterialDTO {
     private Long id;
     private String name;
@@ -10,6 +12,11 @@ public class MaterialDTO {
     public MaterialDTO(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public MaterialDTO(MaterialEntity entity) {
+        this.id = entity.getId();
+        this.name = entity.getName();
     }
 
     public Long getId() {

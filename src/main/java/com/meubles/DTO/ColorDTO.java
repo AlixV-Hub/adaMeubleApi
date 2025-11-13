@@ -1,5 +1,7 @@
 package com.meubles.DTO;
 
+import com.meubles.Entity.ColorEntity;
+
 public class ColorDTO {
     private Long id;
     private String name;
@@ -10,6 +12,12 @@ public class ColorDTO {
     public ColorDTO(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+
+    public ColorDTO(ColorEntity entity) {
+        this.id = entity.getId();
+        this.name = entity.getName();
     }
 
     public Long getId() {

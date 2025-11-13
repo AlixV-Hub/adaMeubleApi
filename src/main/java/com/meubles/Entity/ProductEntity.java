@@ -74,13 +74,15 @@ public class ProductEntity {
     private Set<ColorEntity> colors;
     @ManyToOne
     @JoinColumn(name = "creator_id")
-    private UserEntity creator; // le vendeur (créateur du produit)
-
     @Getter
     @Setter
+    private UserEntity creator;
+
     @ManyToOne
     @JoinColumn(name = "buyer_id")
-    private UserEntity buyer; // l’acheteur
+    @Getter
+    @Setter
+    private UserEntity buyer;
 
     @Setter
     @Getter

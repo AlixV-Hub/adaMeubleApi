@@ -40,11 +40,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
-                        // 🔓 Routes publiques
+                        // Routes publiques
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers("/", "/error", "/favicon.ico").permitAll()
 
-                        // 🔒 Routes sécurisées
+                        // Routes sécurisées
                         .requestMatchers("/api/auth/me").authenticated()
 
                         // Back-office : réservé ADMIN
@@ -53,8 +53,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/settings/**").hasRole("ADMIN")
 
                         // Produits : gestion admin
-                        .requestMatchers(HttpMethod.PUT, "/api/products/*/approve").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+
 
                         // Création : accessible à ADMIN + USER
                         .requestMatchers(HttpMethod.POST, "/api/products").hasAnyRole("ADMIN", "USER")

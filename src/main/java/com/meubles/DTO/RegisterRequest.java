@@ -36,7 +36,6 @@ public class RegisterRequest {
     @Getter
     private String address;
 
-    // Constructeur vide (obligatoire pour Jackson)
     public RegisterRequest() {
     }
 

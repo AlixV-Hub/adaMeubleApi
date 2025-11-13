@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String userEmail;
 
-        // Si pas de token, on passe au filtre suivant
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -46,19 +46,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         jwt = authHeader.substring(7); // "Bearer " a 7 caractères
 
-        // On utilise notre JwtUtil pour extraire l'email
+
         userEmail = jwtUtil.getEmailFromToken(jwt);
 
-        // Si on a un email et que l'utilisateur n'est pas déjà authentifié
+
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // On charge l'utilisateur depuis la BDD
+
             UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            // On vérifie que le token est valide POUR CET UTILISATEUR
+
             if (jwtUtil.isTokenValid(jwt, userDetails)) {
 
-                // C'est bon ! On crée le "Principal".
+
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -68,12 +68,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request)
                 );
 
-                // On met l'utilisateur authentifié dans le contexte de sécurité
+
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
 
-        // On passe la main au filtre suivant
+
         filterChain.doFilter(request, response);
     }
 }

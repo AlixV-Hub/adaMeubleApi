@@ -1,10 +1,12 @@
 package com.meubles.DTO;
 
+import com.meubles.Entity.CategoryEntity;
+
 public class CategoryDTO {
     private Long id;
     private String name;
 
-    public CategoryDTO() {
+    public CategoryDTO(CategoryEntity category) {
     }
 
     public CategoryDTO(Long id, String name) {
