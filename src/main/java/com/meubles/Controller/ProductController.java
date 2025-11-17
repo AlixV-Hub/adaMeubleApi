@@ -2,12 +2,14 @@ package com.meubles.Controller;
 
 import com.meubles.DTO.CreateProductRequest;
 import com.meubles.DTO.ProductDTO;
+import com.meubles.DTO.UpdateProductRequest;
 import com.meubles.Entity.UserEntity;
 import com.meubles.Repository.UserRepository;
 import com.meubles.Service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -54,6 +56,16 @@ public class ProductController {
     public ResponseEntity<List<ProductDTO>> getAllProducts() {
         return ResponseEntity.ok(productService.getAllProducts());
     }
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public ResponseEntity<ProductDTO> updateProduct(
+            @PathVariable Long id,
+            @RequestBody UpdateProductRequest request
+    ) {
+        ProductDTO updated = productService.updateProduct(id, request);
+        return ResponseEntity.ok(updated);
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
