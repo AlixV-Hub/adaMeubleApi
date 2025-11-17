@@ -43,24 +43,24 @@ public class ProductService {
         entity.setDescription(request.getDescription());
         entity.setPrice(request.getPrice().doubleValue());
         entity.setDimensions(request.getDimensions());
-
-
-        if (userRole.equalsIgnoreCase("ADMIN")) {
-            entity.setStatus(Status.ENABLED); // dispo
-            entity.setCreatedByUserId(null);
-        } else if (userRole.equalsIgnoreCase("USER")) {
-            entity.setStatus(Status.PENDING); // en attente
+        // enregistre la création si c'est un user
+        if ("USER".equals(userRole)) {
             entity.setCreatedByUserId(userId);
         }
-
-        // SKU automatique
+        if (userRole.equalsIgnoreCase("ADMIN")) {
+            entity.setStatus(Status.ENABLED);
+            entity.setCreatedByUserId(null);
+        } else if (userRole.equalsIgnoreCase("USER")) {
+            entity.setStatus(Status.ENABLED);
+            entity.setCreatedByUserId(userId);
+        }
+//SKU
         if (request.getSku() == null || request.getSku().isEmpty()) {
             entity.setSku("SKU-" + UUID.randomUUID().toString().substring(0, 8));
         } else {
             entity.setSku(request.getSku());
         }
 
-        // Image principale
         if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
             entity.setImageUrl(request.getImageUrls().get(0));
         }
@@ -100,7 +100,25 @@ public class ProductService {
                 .orElseThrow(() -> new ProductNotFoundException(id));
         return convertToDTO(entity);
     }
+    @Transactional
+    public void deleteProduct(Long productId, UserEntity currentUser) {
+        ProductEntity product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produit introuvable"));
 
+        boolean isOwner = product.getCreatedByUserId() != null
+                && product.getCreatedByUserId().equals(currentUser.getId());
+        boolean isAdmin = currentUser.getRole().name().equals("ADMIN");
+
+        if (!isOwner && !isAdmin) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Vous ne pouvez pas supprimer ce produit");
+        }
+
+        // Supprime les associations avant suppression
+        product.getColors().clear();
+        product.getMaterials().clear();
+
+        productRepository.delete(product);
+    }
 
     @Transactional
     public ProductDTO buyProduct(Long productId, Long userId) {
