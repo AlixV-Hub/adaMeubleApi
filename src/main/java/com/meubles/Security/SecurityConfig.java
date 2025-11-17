@@ -48,6 +48,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/me").authenticated()
 
                         // Back-office : réservé ADMIN
+                        .requestMatchers("/api/users/preferences/**").hasAnyRole("USER", "ADMIN")  // ← AJOUTER CETTE LIGNE EN PREMIER !
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/categories/**").hasRole("ADMIN")
                         .requestMatchers("/api/settings/**").hasRole("ADMIN")

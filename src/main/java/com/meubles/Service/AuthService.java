@@ -46,7 +46,7 @@ public class AuthService {
         user.setRole(Role.USER);
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().toString());
+        String token = jwtUtil.generateToken(user.getEmail(), "ROLE_" + user.getRole().toString());
         return new AuthResponse(token, user.getEmail(), user.getRole().toString());
     }
 
@@ -65,7 +65,7 @@ public class AuthService {
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé"));
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().toString());
+        String token = jwtUtil.generateToken(user.getEmail(), "ROLE_" + user.getRole().toString());
         return new AuthResponse(token, user.getEmail(), user.getRole().toString());
     }
 

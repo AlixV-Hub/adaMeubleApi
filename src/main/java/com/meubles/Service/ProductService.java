@@ -53,7 +53,7 @@ public class ProductService {
             entity.setStatus(Status.ENABLED);
             entity.setCreatedByUserId(null);
         } else if (userRole.equalsIgnoreCase("USER")) {
-            entity.setStatus(Status.ENABLED);
+            entity.setStatus(Status.PENDING);
             entity.setCreatedByUserId(userId);
         }
 
