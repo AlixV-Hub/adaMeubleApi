@@ -11,7 +11,6 @@ public class UserDto {
     private String address;
     private Role role;
 
-    // Getters et Setters
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

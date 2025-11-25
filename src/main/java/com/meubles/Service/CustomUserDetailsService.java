@@ -33,7 +33,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                List.of(authority) // <-- LA CORRECTION (au lieu de Collections.emptyList())
+                List.of(authority)
         );
     }
 }

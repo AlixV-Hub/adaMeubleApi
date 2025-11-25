@@ -25,10 +25,6 @@ public class PaymentController {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-     * POST /api/payments
-     * Initier un paiement (réserve le produit)
-     */
     @PostMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<PaymentDTO> initiatePayment(
@@ -39,10 +35,7 @@ public class PaymentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(payment);
     }
 
-    /**
-     * PUT /api/payments/{transactionId}/confirm
-     * Confirmer un paiement (après succès Stripe/PayPal)
-     */
+
     @PutMapping("/{transactionId}/confirm")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<PaymentDTO> confirmPayment(
@@ -52,10 +45,7 @@ public class PaymentController {
         return ResponseEntity.ok(payment);
     }
 
-    /**
-     * DELETE /api/payments/{id}
-     * Annuler un paiement (libère le produit)
-     */
+
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Void> cancelPayment(
@@ -66,10 +56,6 @@ public class PaymentController {
         return ResponseEntity.noContent().build();
     }
 
-    /**
-     * GET /api/payments
-     * Récupérer l'historique des paiements de l'utilisateur connecté
-     */
     @GetMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<PaymentDTO>> getUserPayments(Authentication authentication) {
@@ -78,10 +64,7 @@ public class PaymentController {
         return ResponseEntity.ok(payments);
     }
 
-    /**
-     * GET /api/payments/{id}
-     * Récupérer les détails d'un paiement
-     */
+
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<PaymentDTO> getPaymentById(
@@ -92,9 +75,7 @@ public class PaymentController {
         return ResponseEntity.ok(payment);
     }
 
-    /**
-     * Helper pour récupérer l'utilisateur depuis l'authentification
-     */
+
     private UserEntity getUserFromAuth(Authentication authentication) {
         String email = authentication.getName();
         return userRepository.findByEmail(email)

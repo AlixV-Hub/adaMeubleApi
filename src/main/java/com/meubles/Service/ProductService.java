@@ -57,31 +57,26 @@ public class ProductService {
             entity.setCreatedByUserId(userId);
         }
 
-        // Gérer le SKU
         if (request.getSku() == null || request.getSku().isEmpty()) {
             entity.setSku("SKU-" + UUID.randomUUID().toString().substring(0, 8));
         } else {
             entity.setSku(request.getSku());
         }
 
-        // Image
         if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
             entity.setImageUrl(request.getImageUrls().get(0));
         }
 
-        // Associer la catégorie
         if (request.getCategoryId() != null) {
             categoryRepository.findById(request.getCategoryId())
                     .ifPresent(entity::setCategory);
         }
 
-        // Associer les couleurs
         if (request.getCouleurIds() != null && !request.getCouleurIds().isEmpty()) {
             Set<ColorEntity> colors = new HashSet<>(colorRepository.findAllById(request.getCouleurIds()));
             entity.setColors(colors);
         }
 
-        // Associer les matières
         if (request.getMatiereIds() != null && !request.getMatiereIds().isEmpty()) {
             Set<MaterialEntity> materials = new HashSet<>(materialRepository.findAllById(request.getMatiereIds()));
             entity.setMaterials(materials);
@@ -180,7 +175,6 @@ public class ProductService {
         if (request.getImageUrl() != null) product.setImageUrl(request.getImageUrl());
         if (request.getSku() != null && isAdmin) product.setSku(request.getSku()); // seul l’admin peut changer le SKU
 
-        // Mise à jour de la catégorie
         if (request.getCategoryId() != null) {
             CategoryEntity category = categoryRepository.findById(request.getCategoryId())
                     .orElseThrow(() -> new RuntimeException("Catégorie introuvable"));
@@ -225,12 +219,9 @@ public class ProductService {
         boolean isAdmin = currentUser.getRole().name().equals("ADMIN");
         boolean isOwner = product.getCreator() != null && product.getCreator().getId().equals(currentUser.getId());
 
-        // Seul le propriétaire OU l'admin peut supprimer
         if (!isAdmin && !isOwner) {
             throw new RuntimeException("Accès refusé : vous ne pouvez supprimer que vos propres produits");
         }
-
-        // Soft delete : change simplement le statut
         product.setStatus(Status.DISABLED);
         productRepository.save(product);
     }

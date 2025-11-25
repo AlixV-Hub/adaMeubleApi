@@ -20,8 +20,8 @@ public class UpdateProductRequest {
     private List<Long> couleurIds;
     private List<Long> matiereIds;
 
-    private String sku;        // (admin only)
+    private String sku;
     private String dimensions;
     private String imageUrl;
-    private String status;     // ENABLED / DISABLED (admin)
+    private String status;
 }

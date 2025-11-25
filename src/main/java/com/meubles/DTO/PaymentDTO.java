@@ -22,7 +22,6 @@ public class PaymentDTO {
     private LocalDateTime paymentDate;
     private LocalDateTime createdAt;
 
-    // Infos optionnelles du produit
     private String productName;
     private String productImageUrl;
 }

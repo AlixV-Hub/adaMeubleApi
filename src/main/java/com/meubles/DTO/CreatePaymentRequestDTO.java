@@ -6,11 +6,9 @@ import lombok.Data;
 @Data
 public class CreatePaymentRequestDTO {
     private Long productId;
-    private PaymentMethod paymentMethod;  // CARD, PAYPAL, etc.
+    private PaymentMethod paymentMethod;
 
-    // Pour Stripe (si paiement par carte)
-    private String stripeToken;  // Token généré par Stripe.js côté frontend
+    private String stripeToken;
 
-    // Pour PayPal (si paiement PayPal)
-    private String paypalOrderId;  // ID de commande PayPal
+    private String paypalOrderId;
 }

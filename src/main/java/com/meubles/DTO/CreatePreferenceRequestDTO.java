@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class CreatePreferenceRequestDTO {
-    private Long categoryId;  // nullable
-    private Long colorId;     // nullable
-    private Long materialId;  // nullable
+    private Long categoryId;
+    private Long colorId;
+    private Long materialId;
 }

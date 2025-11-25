@@ -28,7 +28,6 @@ public class CreateProductRequest {
     private String dimensions;
     private List<String> imageUrls;
 
-    // --- Constructeurs, Getters, Setters ---
     public CreateProductRequest() {}
 
     public String getName() { return name; }

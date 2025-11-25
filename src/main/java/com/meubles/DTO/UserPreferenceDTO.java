@@ -14,7 +14,6 @@ public class UserPreferenceDTO {
     private Long colorId;
     private Long materialId;
 
-    // Optionnel : noms pour affichage
     private String categoryName;
     private String colorName;
     private String materialName;

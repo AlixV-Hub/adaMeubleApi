@@ -33,9 +33,6 @@ public class PaymentService {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-     * Initier un paiement (réserve le produit)
-     */
     @Transactional
     public PaymentDTO initiatePayment(Long userId, CreatePaymentRequestDTO request) {
         // Vérifier que le produit existe et est disponible
@@ -45,7 +42,6 @@ public class PaymentService {
                         "Produit introuvable"
                 ));
 
-        // Vérifier que le produit est disponible
         if (product.getStatus() != Status.ENABLED) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
@@ -53,14 +49,12 @@ public class PaymentService {
             );
         }
 
-        // Vérifier que l'utilisateur existe
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Utilisateur introuvable"
                 ));
 
-        // Créer le paiement
         PaymentEntity payment = new PaymentEntity();
         payment.setProductId(product.getId());
         payment.setUserId(user.getId());
@@ -68,11 +62,9 @@ public class PaymentService {
         payment.setPaymentMethod(request.getPaymentMethod());
         payment.setPaymentStatus(PaymentStatus.PENDING);
 
-        // Réserver le produit (statut ON_HOLD)
         product.setStatus(Status.ON_HOLD);
         productRepository.save(product);
 
-        // Simuler le traitement selon la méthode
         if (request.getPaymentMethod() == PaymentMethod.CARD) {
             // TODO: Intégration Stripe réelle
             payment.setTransactionId("stripe_sim_" + System.currentTimeMillis());
@@ -87,9 +79,6 @@ public class PaymentService {
         return convertToDTO(saved);
     }
 
-    /**
-     * Confirmer un paiement (appelé après succès Stripe/PayPal)
-     */
     @Transactional
     public PaymentDTO confirmPayment(String transactionId) {
         PaymentEntity payment = paymentRepository.findByTransactionId(transactionId)
@@ -105,11 +94,8 @@ public class PaymentService {
             );
         }
 
-        // Marquer le paiement comme complété
         payment.setPaymentStatus(PaymentStatus.COMPLETED);
         payment.setPaymentDate(LocalDateTime.now());
-
-        // Marquer le produit comme vendu (DISABLED)
         ProductEntity product = productRepository.findById(payment.getProductId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -124,9 +110,6 @@ public class PaymentService {
         return convertToDTO(updated);
     }
 
-    /**
-     * Annuler un paiement (libère le produit)
-     */
     @Transactional
     public void cancelPayment(Long paymentId, Long userId) {
         PaymentEntity payment = paymentRepository.findById(paymentId)
@@ -134,8 +117,6 @@ public class PaymentService {
                         HttpStatus.NOT_FOUND,
                         "Paiement introuvable"
                 ));
-
-        // Vérifier que c'est bien le paiement de cet utilisateur
         if (!payment.getUserId().equals(userId)) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
@@ -150,11 +131,9 @@ public class PaymentService {
             );
         }
 
-        // Marquer comme échoué
         payment.setPaymentStatus(PaymentStatus.FAILED);
         paymentRepository.save(payment);
 
-        // Libérer le produit
         ProductEntity product = productRepository.findById(payment.getProductId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -165,9 +144,6 @@ public class PaymentService {
         productRepository.save(product);
     }
 
-    /**
-     * Récupérer l'historique des paiements d'un utilisateur
-     */
     public List<PaymentDTO> getUserPayments(Long userId) {
         return paymentRepository.findByUserId(userId)
                 .stream()
@@ -175,9 +151,6 @@ public class PaymentService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Récupérer les détails d'un paiement
-     */
     public PaymentDTO getPaymentById(Long paymentId, Long userId) {
         PaymentEntity payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new ResponseStatusException(
@@ -185,7 +158,6 @@ public class PaymentService {
                         "Paiement introuvable"
                 ));
 
-        // Vérifier que c'est bien le paiement de cet utilisateur
         if (!payment.getUserId().equals(userId)) {
             throw new ResponseStatusException(
                     HttpStatus.FORBIDDEN,
@@ -196,9 +168,6 @@ public class PaymentService {
         return convertToDTO(payment);
     }
 
-    /**
-     * Convertir Entity → DTO
-     */
     private PaymentDTO convertToDTO(PaymentEntity entity) {
         PaymentDTO dto = new PaymentDTO();
         dto.setId(entity.getId());
@@ -211,7 +180,6 @@ public class PaymentService {
         dto.setPaymentDate(entity.getPaymentDate());
         dto.setCreatedAt(entity.getCreatedAt());
 
-        // Ajouter les infos du produit si chargé
         if (entity.getProduct() != null) {
             dto.setProductName(entity.getProduct().getName());
             dto.setProductImageUrl(entity.getProduct().getImageUrl());

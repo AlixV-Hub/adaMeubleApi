@@ -9,7 +9,6 @@ import lombok.Setter;
 
 public class RegisterRequest {
 
-    // Getters et Setters
     @Setter
     @Getter
     @NotBlank(message = "Le prénom est obligatoire")
@@ -36,12 +35,10 @@ public class RegisterRequest {
     @Getter
     private String address;
 
-    // Constructeur vide (obligatoire pour Jackson)
     public RegisterRequest() {
     }
 
 
-    // Constructeur avec tous les paramètres
     public RegisterRequest(String firstname, String lastname, String email, String password, String address) {
         this.firstname = firstname;
         this.lastname = lastname;

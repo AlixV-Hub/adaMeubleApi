@@ -31,9 +31,6 @@ public class UserPreferenceService {
     @Autowired
     private MaterialRepository materialRepository;
 
-    /**
-     * Récupérer toutes les préférences d'un utilisateur
-     */
     public List<UserPreferenceDTO> getUserPreferences(Long userId) {
         return userPreferenceRepository.findByUserId(userId)
                 .stream()
@@ -41,12 +38,8 @@ public class UserPreferenceService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Ajouter une préférence
-     */
     @Transactional
     public UserPreferenceDTO addPreference(Long userId, CreatePreferenceRequestDTO request) {
-        // Vérifier qu'au moins un critère est renseigné
         if (request.getCategoryId() == null &&
                 request.getColorId() == null &&
                 request.getMaterialId() == null) {
@@ -56,7 +49,6 @@ public class UserPreferenceService {
             );
         }
 
-        // Vérifier que la préférence n'existe pas déjà
         var existing = userPreferenceRepository.findByUserIdAndCategoryIdAndColorIdAndMaterialId(
                 userId,
                 request.getCategoryId(),
@@ -71,7 +63,6 @@ public class UserPreferenceService {
             );
         }
 
-        // Créer la préférence
         UserPreferenceEntity entity = new UserPreferenceEntity();
         entity.setUserId(userId);
         entity.setCategoryId(request.getCategoryId());
@@ -82,9 +73,6 @@ public class UserPreferenceService {
         return convertToDTO(saved);
     }
 
-    /**
-     * Supprimer une préférence (seulement si elle appartient à l'utilisateur)
-     */
     @Transactional
     public void deletePreference(Long preferenceId, Long userId) {
         UserPreferenceEntity preference = userPreferenceRepository.findByIdAndUserId(preferenceId, userId)
@@ -96,9 +84,6 @@ public class UserPreferenceService {
         userPreferenceRepository.delete(preference);
     }
 
-    /**
-     * Convertir Entity → DTO
-     */
     private UserPreferenceDTO convertToDTO(UserPreferenceEntity entity) {
         UserPreferenceDTO dto = new UserPreferenceDTO();
         dto.setId(entity.getId());
@@ -107,7 +92,6 @@ public class UserPreferenceService {
         dto.setColorId(entity.getColorId());
         dto.setMaterialId(entity.getMaterialId());
 
-        // Charger les noms depuis les repositories
         if (entity.getCategoryId() != null) {
             categoryRepository.findById(entity.getCategoryId())
                     .ifPresent(cat -> dto.setCategoryName(cat.getName()));
