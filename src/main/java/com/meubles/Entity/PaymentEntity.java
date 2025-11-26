@@ -34,7 +34,7 @@ public class PaymentEntity {
     private PaymentStatus paymentStatus;
 
     @Column(name = "transaction_id", unique = true)
-    private String transactionId;  // ID de transaction Stripe/PayPal
+    private String transactionId;
 
     @Column(name = "payment_date")
     private LocalDateTime paymentDate;
@@ -45,7 +45,6 @@ public class PaymentEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Relations (optionnelles, pour charger les infos complètes)
     @ManyToOne
     @JoinColumn(name = "product_id", insertable = false, updatable = false)
     private ProductEntity product;

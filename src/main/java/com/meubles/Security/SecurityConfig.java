@@ -41,22 +41,35 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
+                        // Routes publiques
                         .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
                         .requestMatchers("/", "/error", "/favicon.ico").permitAll()
 
+                        //  Données de référence publiques
+                        .requestMatchers("/api/categories/**").permitAll()
+                        .requestMatchers("/api/colors/**").permitAll()
+                        .requestMatchers("/api/materials/**").permitAll()
+
+                        // Consultation produits publique
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+
+                        //  Routes authentifiées
                         .requestMatchers("/api/auth/me").authenticated()
                         .requestMatchers("/api/users/preferences/**").hasAnyRole("USER", "ADMIN")
                         .requestMatchers("/api/payments/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/preferences/**").authenticated()
 
+                        // Routes ADMIN uniquement
                         .requestMatchers("/api/users/**").hasRole("ADMIN")
-                        .requestMatchers("/api/categories/**").hasRole("ADMIN")
                         .requestMatchers("/api/settings/**").hasRole("ADMIN")
-
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/products/*/approve").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/*").hasRole("ADMIN")
+
+                        // Routes USER + ADMIN
                         .requestMatchers(HttpMethod.POST, "/api/products").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/*").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/*").hasAnyRole("USER", "ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/products/*/buy").authenticated()
-                        .requestMatchers("/api/products/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -87,7 +100,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService); // Utilise CustomUserDetailsService
+        authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

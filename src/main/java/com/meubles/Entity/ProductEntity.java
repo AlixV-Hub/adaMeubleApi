@@ -47,6 +47,7 @@ public class ProductEntity {
     private CategoryEntity category;
 
     @ManyToMany
+
     @JoinTable(
             name = "product_color",
             joinColumns = @JoinColumn(name = "product_id"),
