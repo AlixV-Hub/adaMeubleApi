@@ -35,7 +35,6 @@ public class PaymentService {
 
     @Transactional
     public PaymentDTO initiatePayment(Long userId, CreatePaymentRequestDTO request) {
-        // Vérifier que le produit existe et est disponible
         ProductEntity product = productRepository.findById(request.getProductId())
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
@@ -66,11 +65,9 @@ public class PaymentService {
         productRepository.save(product);
 
         if (request.getPaymentMethod() == PaymentMethod.CARD) {
-            // TODO: Intégration Stripe réelle
             payment.setTransactionId("stripe_sim_" + System.currentTimeMillis());
             payment.setPaymentStatus(PaymentStatus.PROCESSING);
         } else if (request.getPaymentMethod() == PaymentMethod.PAYPAL) {
-            // TODO: Intégration PayPal réelle
             payment.setTransactionId("paypal_sim_" + System.currentTimeMillis());
             payment.setPaymentStatus(PaymentStatus.PROCESSING);
         }
