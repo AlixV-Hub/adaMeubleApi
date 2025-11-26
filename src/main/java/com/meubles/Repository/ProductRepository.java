@@ -17,6 +17,8 @@ public interface ProductRepository extends JpaRepository<ProductEntity, Long> {
     List<ProductEntity> findByCategory(CategoryEntity category);
     List<ProductEntity> findByColorsContaining(ColorEntity color);
     List<ProductEntity> findByMaterialsContaining(MaterialEntity material);
+    List<ProductEntity> findByCreatedByUserId(Long userId);
+    List<ProductEntity> findByCreatedByUserIdIsNull();
 }
 
 

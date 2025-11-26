@@ -5,7 +5,7 @@ public enum Status {
     DISABLED,
     PENDING,
     ON_HOLD,
-    DENIED
+    DENIED,
     ;
 
 }

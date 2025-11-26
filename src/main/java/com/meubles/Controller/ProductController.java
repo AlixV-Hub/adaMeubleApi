@@ -13,7 +13,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.util.List;
 
 @RestController
@@ -25,18 +24,28 @@ public class ProductController {
 
     @Autowired
     private UserRepository userRepository;
+    @GetMapping("/my-products")
+    public ResponseEntity<List<ProductDTO>> getMyProducts(Authentication authentication) {
+        System.out.println(" [GET] /my-products appelé");
+
+        String email = authentication.getName();
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
+        System.out.println(" User: " + user.getEmail() + " | Role: " + user.getRole() + " | ID: " + user.getId());
+        List<ProductDTO> myProducts = productService.getMyProducts(user.getId(), user.getRole().name());
+        System.out.println(" Nombre de produits trouvés: " + myProducts.size());
+
+        return ResponseEntity.ok(myProducts);
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteProduct(
             @PathVariable Long id,
             Authentication authentication) {
-
         String email = authentication.getName();
-
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur introuvable"));
-
         productService.deleteProduct(id, user);
-        return ResponseEntity.noContent().build(); // 204 No Content
+        return ResponseEntity.noContent().build();
     }
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(

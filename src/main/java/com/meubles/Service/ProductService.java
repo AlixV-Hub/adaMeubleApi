@@ -27,9 +27,12 @@ public class ProductService {
 
     @Autowired
     private ColorRepository colorRepository;
-
+    @Autowired
+    private PreferenceRepository preferenceRepository;
     @Autowired
     private MaterialRepository materialRepository;
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     @Autowired
     private ProductRepository productRepository;
@@ -222,11 +225,32 @@ public class ProductService {
         if (!isAdmin && !isOwner) {
             throw new RuntimeException("Accès refusé : vous ne pouvez supprimer que vos propres produits");
         }
-        product.setStatus(Status.DISABLED);
+        if (preferenceRepository != null) {
+            preferenceRepository.deleteByProduct_Id(id);
+        }
+        if (paymentRepository != null) {
+            paymentRepository.deleteByProduct_Id(id);
+        }
+        product.getColors().clear();
+        product.getMaterials().clear();
         productRepository.save(product);
+        productRepository.delete(product);
+        System.out.println("✅ Produit ID " + id + " supprimé définitivement par " + currentUser.getEmail());
     }
-
-
+    @Transactional
+    public List<ProductDTO> getMyProducts(Long userId, String userRole) {
+        System.out.println("🔍 getMyProducts - userId: " + userId + " | role: " + userRole);
+        List<ProductEntity> products;
+        if ("ADMIN".equals(userRole)) {
+            products = productRepository.findByCreatedByUserIdIsNull();
+            System.out.println("   → Produits ADMIN (created_by_user_id = null): " + products.size());
+        } else {products = productRepository.findByCreatedByUserId(userId);
+            System.out.println("   → Produits USER (created_by_user_id = " + userId + "): " + products.size());
+        }
+        return products.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
     @Transactional
     public ProductDTO buyProduct(Long productId, Long userId) {
         ProductEntity product = productRepository.findById(productId)
@@ -253,13 +277,10 @@ public class ProductService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "Seuls les produits en attente peuvent être validés");
         }
-
         product.setStatus(Status.ENABLED);
-
         ProductEntity updated = productRepository.save(product);
         return convertToDTO(updated);
     }
-
     @Transactional
     public ProductDTO rejectProduct(Long id) {
         ProductEntity product = productRepository.findById(id)
@@ -274,8 +295,7 @@ public class ProductService {
         return convertToDTO(updated);
     }
 
-
-    private ProductDTO convertToDTO(ProductEntity entity) {
+    public ProductDTO convertToDTO(ProductEntity entity) {
         ProductDTO dto = new ProductDTO(entity);
         dto.setId(entity.getId());
         dto.setName(entity.getName());
