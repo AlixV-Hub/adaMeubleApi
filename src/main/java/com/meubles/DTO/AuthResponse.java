@@ -6,18 +6,15 @@ public class AuthResponse {
     private String email;
     private String role;
 
-    // Constructeur vide
     public AuthResponse() {
     }
 
-    // Constructeur avec paramètres
     public AuthResponse(String token, String email, String role) {
         this.token = token;
         this.email = email;
         this.role = role;
     }
 
-    // Getters et Setters
     public String getToken() {
         return token;
     }

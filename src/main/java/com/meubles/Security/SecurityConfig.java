@@ -1,9 +1,10 @@
 package com.meubles.Security;
 
-import com.meubles.Service.CustomUserDetailsService; // Assurez-vous que le chemin est correct
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -35,29 +36,49 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(withDefaults()) // Utilise votre configuration CORS (CorsConfig.java)
+                .cors(withDefaults())
                 .csrf(csrf -> csrf.disable())
 
-                // --- RÈGLES CORRIGÉES ---
                 .authorizeHttpRequests(auth -> auth
-                        // Autoriser les routes publiques
-                        .requestMatchers("/api/auth/login").permitAll()
-                        .requestMatchers("/api/auth/register").permitAll()
 
-                        // Sécuriser /me (il faut un token)
+                        // Routes publiques
+                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                        .requestMatchers("/", "/error", "/favicon.ico").permitAll()
+
+                        //  Données de référence publiques
+                        .requestMatchers("/api/categories/**").permitAll()
+                        .requestMatchers("/api/colors/**").permitAll()
+                        .requestMatchers("/api/materials/**").permitAll()
+
+                        // Consultation produits publique
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+
+                        //  Routes authentifiées
                         .requestMatchers("/api/auth/me").authenticated()
+                        .requestMatchers("/api/users/preferences/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/payments/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/api/preferences/**").authenticated()
 
-                        // Sécuriser tout le reste
+                        // Routes ADMIN uniquement
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
+                        .requestMatchers("/api/settings/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/*/approve").hasRole("ADMIN")
+
+                        // Routes USER + ADMIN
+                        .requestMatchers(HttpMethod.POST, "/api/products").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/*").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/*").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/*/buy").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Dire à Spring d'utiliser notre fournisseur d'authentification
+
                 .authenticationProvider(authenticationProvider())
 
-                // AJOUTE LE FILTRE "GARDIEN" QUI LIT LES TOKENS
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .formLogin(form -> form.disable())
@@ -71,17 +92,15 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // (Nécessaire pour le login dans AuthService)
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
-    // (Fait le lien entre Spring, notre UserDetailsService et le PasswordEncoder)
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService); // Utilise CustomUserDetailsService
+        authProvider.setUserDetailsService(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }

@@ -16,7 +16,6 @@ public class ErrorResponse {
         this.timestamp = LocalDateTime.now();
     }
 
-    // Getters et Setters
     public int getStatus() {
         return status;
     }

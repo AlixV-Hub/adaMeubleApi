@@ -1,26 +1,37 @@
 package com.meubles.Controller;
 
 import com.meubles.DTO.*;
+import com.meubles.Entity.UserEntity;
+import com.meubles.Repository.UserRepository;
 import com.meubles.Service.AuthService;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import java.security.Principal;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService authService;
+    private final UserRepository userRepository;
 
-    public AuthController(AuthService authService) {
+
+    @Autowired
+    public AuthController(AuthService authService, UserRepository userRepository) {
         this.authService = authService;
+        this.userRepository = userRepository;
     }
+
 
     @PostMapping("/register")
     public AuthResponse register(@Valid @RequestBody RegisterRequest request) {
         return authService.register(request);
     }
+
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody LoginRequest request) {
@@ -29,13 +40,20 @@ public class AuthController {
 
 
     @GetMapping("/me")
-    public ResponseEntity<UserDto> getCurrentUser(Principal principal) {
-        // 'principal.getName()' renverra l'email (ou l'identifiant)
-        // qui a été stocké dans le "subject" du token JWT.
+    public ResponseEntity<UserDto> getCurrentUser(Authentication authentication) {
+        String email = authentication.getName();
 
-        // Nous déléguons au service pour récupérer les infos
-        UserDto userDto = this.authService.getProfile(principal.getName());
-        return ResponseEntity.ok(userDto);
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Utilisateur non trouvé"));
+
+        UserDto dto = new UserDto();
+        dto.setId(user.getId());
+        dto.setFirstname(user.getFirstname());
+        dto.setLastname(user.getLastname());
+        dto.setEmail(user.getEmail());
+        dto.setAddress(user.getAddress());
+        dto.setRole(user.getRole());
+
+        return ResponseEntity.ok(dto);
     }
-
 }

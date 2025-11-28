@@ -19,17 +19,17 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager; // --- AJOUT ---
+    private final AuthenticationManager authenticationManager;
 
-    @Autowired // --- AJOUT ---
+    @Autowired
     public AuthService(UserRepository userRepository,
                        JwtUtil jwtUtil,
                        PasswordEncoder passwordEncoder,
-                       AuthenticationManager authenticationManager) { // --- AJOUT ---
+                       AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.passwordEncoder = passwordEncoder;
-        this.authenticationManager = authenticationManager; // --- AJOUT ---
+        this.authenticationManager = authenticationManager;
     }
 
     public AuthResponse register(RegisterRequest request) {
@@ -46,30 +46,25 @@ public class AuthService {
         user.setRole(Role.USER);
         userRepository.save(user);
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().toString());
+        String token = jwtUtil.generateToken(user.getEmail(), "ROLE_" + user.getRole().toString());
         return new AuthResponse(token, user.getEmail(), user.getRole().toString());
     }
 
     public AuthResponse login(LoginRequest request) {
-        // --- MODIFICATION ICI ---
-        // On utilise Spring Security pour valider l'email et le mot de passe
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
                         request.getPassword()
                 )
         );
-        // Si on arrive ici, l'utilisateur est valide.
 
-        // On récupère l'utilisateur pour générer le token
         UserEntity user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé"));
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().toString());
+        String token = jwtUtil.generateToken(user.getEmail(), "ROLE_" + user.getRole().toString());
         return new AuthResponse(token, user.getEmail(), user.getRole().toString());
     }
 
-    // (La méthode getProfile que nous avons ajoutée plus tôt reste)
     public UserDto getProfile(String email) {
         UserEntity user = this.userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé avec l'email: " + email));
