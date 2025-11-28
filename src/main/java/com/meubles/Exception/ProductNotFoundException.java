@@ -1,4 +1,4 @@
-package com.meubles.Exception;  // Ou exception en minuscule
+package com.meubles.Exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
