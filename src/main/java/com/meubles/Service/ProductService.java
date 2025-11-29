@@ -66,9 +66,16 @@ public class ProductService {
             entity.setSku(request.getSku());
         }
 
+        String imageUrl = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fwww.hemea.com%2Ffr%2Fdecoration-agencement%2Fmeuble-sur-mesure&psig=AOvVaw3pCPqWyRu13ORaJbRqcENw&ust=1764500980756000&source=images&cd=vfe&opi=89978449&ved=0CBUQjRxqFwoTCOiyi8Scl5EDFQAAAAAdAAAAABAL";
+
         if (request.getImageUrls() != null && !request.getImageUrls().isEmpty()) {
-            entity.setImageUrl(request.getImageUrls().get(0));
+            String providedUrl = request.getImageUrls().get(0);
+            if (providedUrl != null && !providedUrl.trim().isEmpty()) {
+                imageUrl = providedUrl;
+            }
         }
+
+        entity.setImageUrl(imageUrl);
 
         if (request.getCategoryId() != null) {
             categoryRepository.findById(request.getCategoryId())
